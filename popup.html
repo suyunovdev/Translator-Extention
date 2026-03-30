@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Speech Translator</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="container">
+
+    <!-- ── Privacy Notice (shown once) ──────────────────────────── -->
+    <div id="privacyBanner" class="privacy-banner" hidden>
+      <span class="privacy-text">
+        Your speech is sent to MyMemory &amp; LibreTranslate for translation.
+        No data is stored by this extension.
+      </span>
+      <button id="dismissPrivacy" class="privacy-dismiss">Got it</button>
+    </div>
+
+    <!-- ── Header ─────────────────────────────────────────────────── -->
+    <header class="header">
+      <div class="logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8"  y1="23" x2="16" y2="23"/>
+        </svg>
+        <span class="logo-text">Speech Translator</span>
+      </div>
+      <div id="statusBadge" class="status-badge status-idle" role="status" aria-live="polite">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="statusText">Idle</span>
+      </div>
+    </header>
+
+    <!-- ── Language Pair ──────────────────────────────────────────── -->
+    <div class="lang-row">
+      <div class="lang-group">
+        <label class="label" for="sourceLang">From</label>
+        <select id="sourceLang" class="select" aria-label="Source language"></select>
+      </div>
+      <button id="swapLang" class="swap-btn" title="Swap languages" aria-label="Swap source and target languages">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7 16V4m0 0L3 8m4-4l4 4"/>
+          <path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+        </svg>
+      </button>
+      <div class="lang-group">
+        <label class="label" for="targetLang">To</label>
+        <select id="targetLang" class="select" aria-label="Target language"></select>
+      </div>
+    </div>
+
+    <!-- ── Start / Stop Button ────────────────────────────────────── -->
+    <button id="toggleBtn" class="toggle-btn btn-start" aria-pressed="false">
+      <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+      </svg>
+      <span id="toggleBtnText">Start Listening</span>
+    </button>
+
+    <!-- ── Display Settings ───────────────────────────────────────── -->
+    <div class="settings-section">
+      <div class="section-title">Display Settings</div>
+
+      <div class="setting-row">
+        <label class="label" for="fontSize">
+          Font Size <span id="fontSizeVal" class="val-badge">18px</span>
+        </label>
+        <input type="range" id="fontSize" class="slider" min="12" max="36" value="18" step="1"
+               aria-label="Overlay font size" />
+      </div>
+
+      <div class="setting-row">
+        <label class="label" for="opacity">
+          Overlay Opacity <span id="opacityVal" class="val-badge">85%</span>
+        </label>
+        <input type="range" id="opacity" class="slider" min="0.3" max="1" value="0.85" step="0.05"
+               aria-label="Overlay background opacity" />
+      </div>
+
+      <div class="setting-row">
+        <label class="label">Position</label>
+        <div class="pos-toggle" role="group" aria-label="Overlay position">
+          <button id="posTop"    class="pos-btn"        data-pos="top">Top</button>
+          <button id="posBottom" class="pos-btn pos-active" data-pos="bottom">Bottom</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Advanced Settings (collapsible) ───────────────────────── -->
+    <details class="advanced-section">
+      <summary class="advanced-toggle">
+        <span>Advanced Settings</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+             class="chevron-icon" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </summary>
+
+      <div class="advanced-content">
+
+        <!-- API Key -->
+        <div class="setting-row">
+          <label class="label" for="apiKey">
+            MyMemory API Key
+            <span class="optional-tag">optional</span>
+          </label>
+          <input type="text" id="apiKey" class="text-input"
+                 placeholder="your@email.com:apikey"
+                 autocomplete="off" spellcheck="false" />
+          <div class="input-hint">Increases free translation quota.</div>
+        </div>
+
+        <!-- Domain Whitelist -->
+        <div class="setting-row">
+          <label class="label toggle-label">
+            <span>Domain Whitelist</span>
+            <label class="toggle-switch" aria-label="Enable domain whitelist">
+              <input type="checkbox" id="whitelistEnabled" />
+              <span class="toggle-track">
+                <span class="toggle-thumb"></span>
+              </span>
+            </label>
+          </label>
+          <div id="whitelistContainer" class="whitelist-container" hidden>
+            <input type="text" id="domainWhitelist" class="text-input"
+                   placeholder="meet.google.com, zoom.us, t.me"
+                   autocomplete="off" spellcheck="false" />
+            <div class="input-hint">Comma-separated. Extension only works on listed domains.</div>
+            <button id="addCurrentSite" class="add-site-btn">+ Add current site</button>
+          </div>
+        </div>
+
+      </div>
+    </details>
+
+    <!-- ── Transcript History ─────────────────────────────────────── -->
+    <div class="transcript-section">
+      <div class="section-header">
+        <span class="section-title">Transcript</span>
+        <div class="transcript-actions">
+          <button id="exportTxt" class="action-btn" title="Export as plain text">TXT</button>
+          <button id="exportSrt" class="action-btn" title="Export as subtitle file">SRT</button>
+          <button id="clearBtn"  class="clear-btn">Clear</button>
+        </div>
+      </div>
+
+      <!-- Keyboard shortcut hint -->
+      <div class="shortcut-hint">
+        Toggle with <kbd>Ctrl+Shift+S</kbd>
+      </div>
+
+      <div id="transcriptList" class="transcript-list" aria-label="Translation history">
+        <p class="empty-hint">Translations will appear here…</p>
+      </div>
+    </div>
+
+    <!-- ── Footer ─────────────────────────────────────────────────── -->
+    <footer class="footer">
+      Powered by MyMemory &amp; LibreTranslate · Free &amp; Open Source
+    </footer>
+
+  </div>
+
+  <!-- Accessibility: live region for screen readers -->
+  <div id="ariaLive" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+  <script src="languages.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

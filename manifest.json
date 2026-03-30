@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Real-Time Speech Translator",
+  "version": "2.0.0",
+  "description": "Real-time speech translation overlay for online conversations — Google Meet, Zoom, Telegram Web, and any tab.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "tabs",
+    "alarms"
+  ],
+  "host_permissions": [
+    "<all_urls>",
+    "https://api.mymemory.translated.net/*",
+    "https://translate.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "commands": {
+    "toggle-listening": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "MacCtrl+Shift+S"
+      },
+      "description": "Toggle speech listening on/off"
+    }
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Speech Translator"
+  }
+}

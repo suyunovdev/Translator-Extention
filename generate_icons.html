@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head><title>Generate Extension Icons</title></head>
+<body style="background:#111;color:#fff;font-family:sans-serif;padding:40px;">
+<h2>Click the button to download PNG icons for your extension</h2>
+<button id="gen" style="padding:12px 24px;font-size:16px;cursor:pointer;">Generate & Download Icons</button>
+<canvas id="c" style="display:none;"></canvas>
+<script>
+document.getElementById('gen').onclick = function() {
+  [16, 48, 128].forEach(function(size) {
+    const canvas = document.getElementById('c');
+    canvas.width = size; canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    const r = size / 128;
+
+    // Background
+    ctx.fillStyle = '#0d0d12';
+    const br = 24 * r;
+    ctx.beginPath();
+    ctx.moveTo(br, 0); ctx.lineTo(size - br, 0);
+    ctx.quadraticCurveTo(size, 0, size, br);
+    ctx.lineTo(size, size - br);
+    ctx.quadraticCurveTo(size, size, size - br, size);
+    ctx.lineTo(br, size);
+    ctx.quadraticCurveTo(0, size, 0, size - br);
+    ctx.lineTo(0, br);
+    ctx.quadraticCurveTo(0, 0, br, 0);
+    ctx.fill();
+
+    // Glow ring
+    ctx.strokeStyle = 'rgba(99,102,241,0.3)';
+    ctx.lineWidth = 3 * r;
+    ctx.beginPath();
+    ctx.arc(64 * r, 64 * r, 38 * r, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Mic body
+    ctx.fillStyle = '#6366f1';
+    ctx.beginPath();
+    ctx.ellipse(64 * r, 44 * r, 12 * r, 20 * r, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillRect(52 * r, 44 * r, 24 * r, 16 * r);
+
+    // Mic arc
+    ctx.strokeStyle = '#818cf8';
+    ctx.lineWidth = 4 * r;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(64 * r, 56 * r, 24 * r, Math.PI, 0);
+    ctx.stroke();
+
+    // Mic stand
+    ctx.beginPath();
+    ctx.moveTo(64 * r, 84 * r);
+    ctx.lineTo(64 * r, 100 * r);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(52 * r, 100 * r);
+    ctx.lineTo(76 * r, 100 * r);
+    ctx.stroke();
+
+    // Download
+    canvas.toBlob(function(blob) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'icon' + size + '.png';
+      a.click();
+    });
+  });
+};
+</script>
+</body>
+</html>
